@@ -1,0 +1,16 @@
+# Simulated Wikipedia knowledge base (used when LIVE_MODE = False)
+WIKI_KNOWLEDGE_BASE = {
+    "to kill a mockingbird":      ("To Kill a Mockingbird", "https://en.wikipedia.org/wiki/To_Kill_a_Mockingbird"),
+    "1984":                        ("Nineteen Eighty-Four", "https://en.wikipedia.org/wiki/Nineteen_Eighty-Four"),
+    "the great gatsby":            ("The Great Gatsby", "https://en.wikipedia.org/wiki/The_Great_Gatsby"),
+    "pride and prejudice":         ("Pride and Prejudice", "https://en.wikipedia.org/wiki/Pride_and_Prejudice"),
+    "the catcher in the rye":      ("The Catcher in the Rye", "https://en.wikipedia.org/wiki/The_Catcher_in_the_Rye"),
+    "brave new world":             ("Brave New World", "https://en.wikipedia.org/wiki/Brave_New_World"),
+    "the hobbit":                  ("The Hobbit", "https://en.wikipedia.org/wiki/The_Hobbit"),
+    "harry potter and the philosopher's stone": ("Harry Potter and the Philosopher's Stone", "https://en.wikipedia.org/wiki/Harry_Potter_and_the_Philosopher%27s_Stone"),
+    "the da vinci code":           ("The Da Vinci Code", "https://en.wikipedia.org/wiki/The_Da_Vinci_Code"),
+    "gone with the wind":          ("Gone with the Wind", "https://en.wikipedia.org/wiki/Gone_with_the_Wind_(novel)"),
+    "the lord of the rings":       ("The Lord of the Rings", "https://en.wikipedia.org/wiki/The_Lord_of_the_Rings"),
+    # Intentionally NOT in the knowledge base:
+    # "fake book title xyz123" -> will return NOT FOUND
+}
