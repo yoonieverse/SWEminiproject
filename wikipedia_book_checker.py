@@ -9,15 +9,13 @@ from openpyxl.styles import Font, Alignment, Border, Side
 
 load_dotenv()
 
+# Information in Other.txt if LIVE_MODE = FALSE
 LIVE_MODE = True
 API_KEY = os.getenv("GEMINI_API_KEY")
 WIKIPEDIA_API = "https://en.wikipedia.org/w/api.php"
 HEADERS = {"User-Agent": "BookVerifier/1.0 (educational project)"}
 
-
-# -----------------------------
 # 1. CONFIDENCE INTERVAL ENGINE
-# -----------------------------
 def compute_confidence_interval(results):
     total = len(results)
     verified = sum(1 for r in results if r["found"])
@@ -49,9 +47,7 @@ def compute_confidence_interval(results):
     }
 
 
-# -----------------------------
 # 2. WIKIPEDIA CHECKER
-# -----------------------------
 def check_live(title):
     try:
         params = {
@@ -82,9 +78,7 @@ def check_wikipedia(title):
     return check_live(title)
 
 
-# -----------------------------
 # 3. INPUT LOADER
-# -----------------------------
 def load_books():
     wb = load_workbook("books_input.xlsx")
     ws = wb.active
@@ -104,10 +98,7 @@ def load_books():
 
     return books
 
-
-# -----------------------------
-# 4. PRETTY TERMINAL OUTPUT
-# -----------------------------
+# 4. TERMINAL OUTPUT
 def print_header():
     print("\n" + "=" * 60)
     print("BOOK VERIFICATION")
@@ -131,9 +122,8 @@ def print_summary(stats):
     print(f"Margin of Error    : ±{stats['margin_error']*100:.2f}%")
     print(f"95% CI Range       : {stats['lower']*100:.2f}% → {stats['upper']*100:.2f}%")
 
-# -----------------------------
+
 # 5. RUN CHECKS
-# -----------------------------
 def run_checks(books):
     results = []
 
@@ -155,9 +145,7 @@ def run_checks(books):
     return results
 
 
-# -----------------------------
 # 6. EXPORT EXCEL
-# -----------------------------
 def export_excel(results, stats):
     wb = Workbook()
 
@@ -204,9 +192,7 @@ def export_excel(results, stats):
     wb.save("books_verified.xlsx")
 
 
-# -----------------------------
 # MAIN
-# -----------------------------
 def main():
     print_header()
 
@@ -221,7 +207,7 @@ def main():
 
     export_excel(results, stats)
 
-    print()
+    print()     
     print("Verification Finished!")
     print("File saved as books_verified.xlsx")
 
