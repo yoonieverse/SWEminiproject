@@ -5,8 +5,7 @@ from dotenv import load_dotenv
 import os
 from datetime import datetime
 from openpyxl import load_workbook, Workbook
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-from openpyxl.utils import get_column_letter
+from openpyxl.styles import Font, Alignment, Border, Side
 
 load_dotenv()
 
@@ -14,6 +13,7 @@ LIVE_MODE = True
 API_KEY = os.getenv("GEMINI_API_KEY")
 WIKIPEDIA_API = "https://en.wikipedia.org/w/api.php"
 HEADERS = {"User-Agent": "BookVerifier/1.0 (educational project)"}
+
 
 # -----------------------------
 # 1. CONFIDENCE INTERVAL ENGINE
@@ -23,8 +23,15 @@ def compute_confidence_interval(results):
     verified = sum(1 for r in results if r["found"])
 
     if total == 0:
-        return dict(total=0, verified=0, not_verified=0,
-                    proportion=0, margin_error=0, lower=0, upper=0)
+        return {
+            "total": 0,
+            "verified": 0,
+            "not_verified": 0,
+            "proportion": 0,
+            "margin_error": 0,
+            "lower": 0,
+            "upper": 0
+        }
 
     p = verified / total
     z = 1.96
@@ -99,7 +106,33 @@ def load_books():
 
 
 # -----------------------------
-# 4. RUN CHECKS
+# 4. PRETTY TERMINAL OUTPUT
+# -----------------------------
+def print_header():
+    print("\n" + "=" * 60)
+    print("BOOK VERIFICATION")
+    print("=" * 60 + "\n")
+
+
+def print_result(book, found):
+    status = "VERIFIED" if found else "NOT FOUND"
+    print(f"{status:<15} | {book['title']}")
+
+
+def print_summary(stats):
+    print("\n" + "=" * 60)
+    print("FINAL STATISTICS")
+    print("=" * 60)
+
+    print(f"Total Books        : {stats['total']}")
+    print(f"Verified Books     : {stats['verified']}")
+    print(f"Not Verified       : {stats['not_verified']}")
+    print(f"Proportion Found   : {stats['proportion']*100:.2f}%")
+    print(f"Margin of Error    : ±{stats['margin_error']*100:.2f}%")
+    print(f"95% CI Range       : {stats['lower']*100:.2f}% → {stats['upper']*100:.2f}%")
+
+# -----------------------------
+# 5. RUN CHECKS
 # -----------------------------
 def run_checks(books):
     results = []
@@ -114,7 +147,7 @@ def run_checks(books):
             "url": url if found else "N/A"
         })
 
-        print(("OK" if found else "XX"), book["title"])
+        print_result(book, found)
 
         if LIVE_MODE:
             time.sleep(0.3)
@@ -123,27 +156,19 @@ def run_checks(books):
 
 
 # -----------------------------
-# 5. EXPORT EXCEL
+# 6. EXPORT EXCEL
 # -----------------------------
 def export_excel(results, stats):
     wb = Workbook()
-
-    thin = Border(
-        left=Side(style="thin"),
-        right=Side(style="thin"),
-        top=Side(style="thin"),
-        bottom=Side(style="thin")
-    )
 
     # ---------------- SHEET 1 ----------------
     ws = wb.active
     ws.title = "Results"
 
     headers = ["#", "Title", "Author", "Genre", "Status", "Wikipedia Title", "URL"]
+
     for c, h in enumerate(headers, 1):
-        cell = ws.cell(row=1, column=c, value=h)
-        cell.font = Font(bold=True)
-        cell.border = thin
+        ws.cell(1, c, h).font = Font(bold=True)
 
     for i, r in enumerate(results, 2):
         ws.cell(i, 1, r["num"])
@@ -157,18 +182,23 @@ def export_excel(results, stats):
     # ---------------- SHEET 2 ----------------
     ws2 = wb.create_sheet("Stats")
 
+    ws2["A1"] = "BOOK VERIFICATION STATISTICS"
+    ws2["A1"].font = Font(bold=True, size=14)
+
     summary = [
-        ("Total", stats["total"]),
-        ("Verified", stats["verified"]),
-        ("Not Verified", stats["not_verified"]),
-        ("Proportion", f"{stats['proportion']*100:.2f}%"),
-        ("Margin of Error", f"{stats['margin_error']*100:.2f}%"),
-        ("Lower Bound", f"{stats['lower']*100:.2f}%"),
-        ("Upper Bound", f"{stats['upper']*100:.2f}%"),
+        ("Total Books", stats["total"]),
+        ("Verified Books", stats["verified"]),
+        ("Not Verified Books", stats["not_verified"]),
+        ("Proportion Verified", f"{stats['proportion']*100:.2f}%"),
+        ("Margin of Error", f"±{stats['margin_error']*100:.2f}%"),
+        ("Lower Bound (95%)", f"{stats['lower']*100:.2f}%"),
+        ("Upper Bound (95%)", f"{stats['upper']*100:.2f}%"),
     ]
 
-    for i, (k, v) in enumerate(summary, 1):
-        ws2.cell(i, 1, k)
+    row_start = 3
+
+    for i, (k, v) in enumerate(summary, row_start):
+        ws2.cell(i, 1, k).font = Font(bold=True)
         ws2.cell(i, 2, v)
 
     wb.save("books_verified.xlsx")
@@ -178,17 +208,22 @@ def export_excel(results, stats):
 # MAIN
 # -----------------------------
 def main():
+    print_header()
+
     books = load_books()
-    print(f"Loaded {len(books)} books")
+    print(f"Loaded {len(books)} books\n")
 
     results = run_checks(books)
 
     stats = compute_confidence_interval(results)
 
+    print_summary(stats)
+
     export_excel(results, stats)
 
-    print("\nDONE")
-    print(stats)
+    print()
+    print("Verification Finished!")
+    print("File saved as books_verified.xlsx")
 
 
 if __name__ == "__main__":

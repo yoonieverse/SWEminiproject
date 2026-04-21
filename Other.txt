@@ -14,3 +14,13 @@ WIKI_KNOWLEDGE_BASE = {
     # Intentionally NOT in the knowledge base:
     # "fake book title xyz123" -> will return NOT FOUND
 }
+
+
+Notes:
+Change value in line 17 wikipedia_book_checker.py:
+false(default) = no internet usage; usea built-in knowledge
+True = makes real HTTP requests to Wikipedia's API
+
+
+
+openpyxl handles reading and writing Excel files + requests makes HTPP calls to the Wikepedia API
