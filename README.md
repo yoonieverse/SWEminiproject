@@ -1,3 +1,4 @@
+# About
 This mini-project automates the process of verifying whether books exist on Wikipedia. It reads book titles, author names, and genres from an input Excel file, then queries the Wikipedia API for each title to determine whether a matching title exists. The results are exported to a second excel file, where each book is labeled as VERIFIED (found on the Wikipedia site) or NOT FOUND. 
 
 
@@ -23,6 +24,9 @@ python3 -m pip install openpyxl requests<br/>
 python3 -m pip install python-dotenv<br/>
 python3 -m pip install deep-translator<br/>
 python3 -m pip install google-genai<br/>
+
+# Add .env file
+Replace .env.example with GEMINI API Key
 
 # Running the script:
 python3 wikipedia_book_checker.py
