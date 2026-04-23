@@ -1,0 +1,41 @@
+This text file is used to log my educational mistakes and what I learned from it.
+
+
+4/22
+
+1. What is openpyxl?
+openpyxl handles reading and writing Excel files + requests makes HTPP calls to the Wikepedia API
+
+
+2. The difference between distribution package vs import package
+    - https://packaging.python.org/en/latest/discussions/distribution-package-vs-import-package/#distribution-package-vs-import-package
+
+
+3. I ran into the issue where the startup pre-warm always waits 30s even when there are no non-English books early in the list. Instead, it'll only start the timer right before the first actual Gemini call and then I keep running out of api calls because of my limit. 
+
+
+
+4. Decided to add a cache so that it saves every GEMINI result so re-runs never call the API twice for the same title. I think I made like 5 API keys just to test this and it still didn't work lol...
+
+
+5. This genuinely saved my life:
+curl "https://generativelanguage.googleapis.com/v1beta/models?key=YOUR_NEW_KEY" | python3 -c "
+import json, sys
+for m in json.load(sys.stdin).get('models', []):
+    if 'flash' in m['name'].lower():
+        print(m['name'])
+"
+
+
+6.
+While listening to opera at 4 am, I magically decided to change everything so that it follows a hybrid structure where normalization and detecting duplicates are done locally rather than utilizing GEMINI to do everything for me. Sounds stupid and obvious but I'm a learning student chill and I learned from my mistakes.
+
+So basically by importing this dependency, ... install deep-translator, I deep-translated all the non-English book titles and then checked to see if that book was present in the Wikipedia page using it's public API. Majority of the books, except for the fake inputs, were found so it was then added onto the excel file using the functions I wrote and also with the help of openpyxl.
+
+To detect duplicates in the input file, regardless if it were in a different language, I  decided to do an O(n^2) local pass that groups near-identitle titles. Basically, instead of relying on exact matches, every book title is compared against every other title. If the translated title is available, it will compare with that value instead. Otherwise, the original title after the unicode-normalization is compared instead. Then a string similarity score is computed using a ratio, and if that is above the threshold of 0.72 (guesstimated until it looked right) then it was assumed that those two strings were duplicates.
+
+Since I was working with a very limited resource, GEMINI was only used for two things:
+    1. Backup/Step 2 for detecting duplicates (sematic grouping of books)
+    2. Generating a human-readable summary of the stats 
+
+Overall I learned a lot more about API integration, text normalization, how annoying api rate limits are when you're broke, and also learned how to code better in python. 

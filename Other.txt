@@ -26,4 +26,16 @@ True = makes real HTTP requests to Wikipedia's API
 
 
 
-openpyxl handles reading and writing Excel files + requests makes HTPP calls to the Wikepedia API
+If [GEMINI] outputs 429 errors:
+
+curl "https://generativelanguage.googleapis.com/v1beta/models?key=YOUR_NEW_KEY" | python3 -c "
+import json, sys
+for m in json.load(sys.stdin).get('models', []):
+    if 'flash' in m['name'].lower():
+        print(m['name'])
+"
+Replace key=YOUR_NEW_KEY with api key
+
+Alter line 76 with any model available from output above^
+    model = xxxxxx
+
